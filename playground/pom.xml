@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>io.nodemedic</groupId>
+  <artifactId>playground</artifactId>
+  <version>0.1.0-SNAPSHOT</version>
+  <name>nodemedic-playground</name>
+  <description>Phase 2 throwaway: raw Fabric8 against the local kind cluster</description>
+
+  <properties>
+    <maven.compiler.release>21</maven.compiler.release>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+    <!-- 8.0.0 exists, but stay on 7.x: JOSDK (Phase 4) builds on Fabric8 7.x -->
+    <fabric8.version>7.9.0</fabric8.version>
+    <slf4j.version>2.0.20</slf4j.version>
+
+    <!-- default class for `mvn exec:java`; override with -Dexec.mainClass=playground.WatchNodes -->
+    <exec.mainClass>playground.ListNodes</exec.mainClass>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>io.fabric8</groupId>
+      <artifactId>kubernetes-client</artifactId>
+      <version>${fabric8.version}</version>
+    </dependency>
+
+    <!-- without a binding, Fabric8 logs nothing and connection errors are invisible -->
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-simple</artifactId>
+      <version>${slf4j.version}</version>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.13.0</version>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>exec-maven-plugin</artifactId>
+        <version>3.6.4</version>
+        <configuration>
+          <mainClass>${exec.mainClass}</mainClass>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+</project>

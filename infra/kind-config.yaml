@@ -1,0 +1,22 @@
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+name: nodemedic
+nodes:
+  - role: control-plane
+  - role: worker
+    labels: 
+      nodemedic.io/pool: gpu
+      nodemedic.io/role: active
+  - role: worker
+    labels: 
+      nodemedic.io/pool: gpu
+      nodemedic.io/role: active
+  - role: worker
+    labels: 
+      nodemedic.io/pool: gpu
+      nodemedic.io/role: spare
+  - role: worker
+    labels: 
+      nodemedic.io/pool: gpu
+      nodemedic.io/role: spare
+      
