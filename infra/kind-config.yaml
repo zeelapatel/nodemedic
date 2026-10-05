@@ -4,19 +4,12 @@ name: nodemedic
 nodes:
   - role: control-plane
   - role: worker
-    labels: 
-      nodemedic.io/pool: gpu
-      nodemedic.io/role: active
+    labels: { nodemedic.io/pool: gpu, nodemedic.io/role: active }
   - role: worker
-    labels: 
-      nodemedic.io/pool: gpu
-      nodemedic.io/role: active
+    labels: { nodemedic.io/pool: gpu, nodemedic.io/role: active }
   - role: worker
-    labels: 
-      nodemedic.io/pool: gpu
-      nodemedic.io/role: spare
+    labels: { nodemedic.io/pool: gpu, nodemedic.io/role: active }
   - role: worker
-    labels: 
-      nodemedic.io/pool: gpu
-      nodemedic.io/role: spare
-      
+    labels: { nodemedic.io/pool: gpu, nodemedic.io/role: spare }
+  - role: worker
+    labels: { nodemedic.io/pool: gpu, nodemedic.io/role: spare }
