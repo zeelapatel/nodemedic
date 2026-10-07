@@ -18,7 +18,7 @@
 
   <modules>
     <module>operator</module>
-    <!-- <module>demo-app</module>  Phase 5 -->
+    <module>demo-app</module>
   </modules>
 
   <properties>

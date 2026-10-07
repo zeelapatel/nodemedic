@@ -1,0 +1,14 @@
+spring.application.name: demo-app
+
+server:
+  port: 8080
+  shutdown: graceful                 # finish in-flight requests when SIGTERM arrives
+
+spring.lifecycle.timeout-per-shutdown-phase: 20s   # must stay below terminationGracePeriodSeconds
+
+management:
+  endpoints.web.exposure.include: health,info
+  endpoint.health.probes.enabled: true   # /actuator/health/liveness and /readiness, also outside Kubernetes
+  health.probes.enabled: true
+
+demo.latency-ms: 50

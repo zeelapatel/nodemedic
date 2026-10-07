@@ -1,0 +1,30 @@
+# Load generator that runs inside the cluster (not through kubectl port-forward,
+# which pins to one pod and breaks when that pod is evicted).
+#   kubectl apply -f tools/loadtest.yaml
+#   kubectl logs -f loadtest
+#   kubectl delete pod loadtest        # before re-running
+apiVersion: v1
+kind: Pod
+metadata:
+  name: loadtest
+  labels:
+    app: loadtest
+spec:
+  restartPolicy: Never
+  # run on the control-plane so a drain of a worker never evicts the load generator
+  nodeSelector:
+    node-role.kubernetes.io/control-plane: ""
+  tolerations:
+    - key: node-role.kubernetes.io/control-plane
+      operator: Exists
+      effect: NoSchedule
+  containers:
+    - name: fortio
+      image: fortio/fortio
+      args:
+        - load
+        - -qps
+        - "20"
+        - -t
+        - 300s
+        - http://demo-app/infer
