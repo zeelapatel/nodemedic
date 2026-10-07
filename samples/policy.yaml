@@ -1,0 +1,13 @@
+apiVersion: nodemedic.io/v1alpha1
+kind: RemediationPolicy
+metadata: { name: gpu-pool }
+spec:
+  nodeSelector: { nodemedic.io/pool: gpu }
+  signals:
+    - { conditionType: GpuXidError,    severity: Critical }   # remediate on first fault
+    - { conditionType: NvlinkDegraded, severity: Degraded }   # needs the threshold
+  threshold: { faults: 3, window: 10m }                       # applies to Degraded signals
+  cooldown: 15m
+  maxConcurrentRemediations: 1
+  drainTimeout: 10m
+  spareSelector: { nodemedic.io/role: spare }

@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nodemedic-operator
+  namespace: nodemedic
+  labels:
+    app.kubernetes.io/name: nodemedic-operator
+spec:
+  replicas: 1                                   # single writer (ADR 0008)
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: nodemedic-operator
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: nodemedic-operator
+    spec:
+      serviceAccountName: nodemedic
+      # never run on a node the operator might drain
+      nodeSelector:
+        node-role.kubernetes.io/control-plane: ""
+      tolerations:
+        - key: node-role.kubernetes.io/control-plane
+          operator: Exists
+          effect: NoSchedule
+      containers:
+        - name: operator
+          image: ghcr.io/zeelapatel/nodemedic-operator:dev   # placeholder until Phase 9
+          ports:
+            - name: http
+              containerPort: 8080
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: http
+            initialDelaySeconds: 20
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 5
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              memory: 512Mi

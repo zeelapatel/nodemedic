@@ -1,0 +1,3 @@
+spring.application.name: nodemedic-operator
+logging.level.io.nodemedic: DEBUG
+management.endpoints.web.exposure.include: health,info

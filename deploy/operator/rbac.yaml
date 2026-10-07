@@ -1,0 +1,50 @@
+# Identity and permissions for the NodeMedic operator.
+# Cluster-scoped because Nodes and both CRDs are cluster-scoped.
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: nodemedic
+  namespace: nodemedic
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: nodemedic
+rules:
+  # watch nodes; cordon faulty ones and relabel spares
+  - apiGroups: [""]
+    resources: ["nodes"]
+    verbs: ["get", "list", "watch", "patch", "update"]
+  - apiGroups: [""]
+    resources: ["nodes/status"]
+    verbs: ["get"]
+  # see what runs on a node before draining it
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs: ["get", "list", "watch"]
+  # drain by eviction only (respects PDBs); no pods:delete on purpose (ADR 0014)
+  - apiGroups: [""]
+    resources: ["pods/eviction"]
+    verbs: ["create"]
+  - apiGroups: ["", "events.k8s.io"]
+    resources: ["events"]
+    verbs: ["create", "patch"]
+  - apiGroups: ["nodemedic.io"]
+    resources: ["remediationpolicies", "noderemediations"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+  - apiGroups: ["nodemedic.io"]
+    resources: ["remediationpolicies/status", "noderemediations/status"]
+    verbs: ["get", "update", "patch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: nodemedic
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: nodemedic
+subjects:
+  - kind: ServiceAccount
+    name: nodemedic
+    namespace: nodemedic
