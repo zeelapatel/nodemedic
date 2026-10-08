@@ -12,7 +12,7 @@ class InferControllerTest {
 
         var response = controller.infer();
 
-        assertThat(response.result()).isEqualTo("nope");
+        assertThat(response.result()).isEqualTo("ok");
         assertThat(response.servedBy()).isEqualTo("worker2");
         assertThat(response.pod()).isEqualTo("demo-app-abc");
     }
