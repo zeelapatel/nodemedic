@@ -1,0 +1,56 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+# a newer push to the same branch/PR cancels the older run
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+      # compiles both modules and runs unit tests
+      - run: mvn -B verify
+
+  crd-drift:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+      # the CRD generator runs at process-classes and writes into deploy/operator/crds
+      - run: mvn -B -q -pl operator process-classes
+      # git status (not git diff) so a brand-new, untracked CRD file is caught too
+      - name: Fail if the generated CRDs differ from the committed ones
+        run: |
+          if [ -n "$(git status --porcelain -- deploy/operator/crds)" ]; then
+            echo "::error::Generated CRDs differ from the committed ones. Run 'mvn -pl operator process-classes' and commit deploy/operator/crds/."
+            git status --porcelain -- deploy/operator/crds
+            git diff -- deploy/operator/crds
+            exit 1
+          fi
+
+  manifest-validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      # render only: fails on a missing file or malformed YAML
+      - run: kubectl kustomize deploy/operator > /dev/null
+      - run: kubectl kustomize deploy/demo-app > /dev/null
